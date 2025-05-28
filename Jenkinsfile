@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     tools {
-        maven 'Maven3' // Use the name you've configured in Jenkins
+        maven 'Maven3' // Use the Maven installation configured in Jenkins
     }
 
     stages {
@@ -13,11 +13,8 @@ pipeline {
         }
 
         stage('Run OWASP Dependency Check') {
-           steps {
-                dependencyCheck additionalArguments: '', 
-                                odcInstallation: 'Default', // Optional if you set up multiple installations
-                                scanPath: '.',
-                                useStdin: false
+            steps {
+                dependencyCheck additionalArguments: ''
             }
         }
 
@@ -32,6 +29,13 @@ pipeline {
                     reportName: 'OWASP Dependency Check Report'
                 ])
             }
+        }
+    }
+
+    post {
+        always {
+            // Publish the Dependency-Check report so it appears in Jenkins UI
+            dependencyCheckPublisher pattern: 'dependency-check-report.xml'
         }
     }
 }
