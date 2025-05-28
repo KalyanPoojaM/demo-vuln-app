@@ -2,42 +2,35 @@ pipeline {
     agent any
 
     tools {
-        // Install Maven if you're using it (optional)
-        maven 'Maven 3.8.1'
+        maven 'Maven3' // Use the name you've configured in Jenkins
     }
 
     stages {
-        stage('Checkout') {
+        stage('Checkout Code') {
             steps {
-                git url: 'https://github.com/KalyanPoojaM/demo-vuln-app.git'
+                git 'https://github.com/KalyanPoojaM/demo-vuln-app.git'
             }
         }
 
-        stage('Dependency Check') {
+        stage('Run OWASP Dependency Check') {
             steps {
-                dependencyCheck additionalArguments: '', 
-                    odcInstallation: 'Default', 
-                    scanpath: '.', 
-                    datadir: '', 
-                    suppressionFile: '', 
-                    outdir: 'dependency-check-report', 
-                    isQuickMode: false, 
-                    includeCsvReport: false, 
-                    includeHtmlReport: true, 
-                    includeJsonReport: true, 
-                    includeJunitReport: false
+                dependencyCheck additionalArguments: '',
+                                odcInstallation: 'DependencyCheck', // Make sure this matches your Jenkins tool config
+                                stopBuild: false
             }
         }
-    }
 
-    post {
-        always {
-            archiveArtifacts artifacts: 'dependency-check-report/**', fingerprint: true
-            publishHTML(target: [
-                reportDir: 'dependency-check-report',
-                reportFiles: 'dependency-check-report.html',
-                reportName: 'OWASP Dependency-Check Report'
-            ])
+        stage('Publish Report') {
+            steps {
+                publishHTML(target: [
+                    allowMissing: true,
+                    alwaysLinkToLastBuild: true,
+                    keepAll: true,
+                    reportDir: 'dependency-check-report',
+                    reportFiles: 'dependency-check-report.html',
+                    reportName: 'OWASP Dependency Check Report'
+                ])
+            }
         }
     }
 }
