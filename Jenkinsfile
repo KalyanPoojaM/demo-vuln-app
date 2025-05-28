@@ -13,10 +13,11 @@ pipeline {
         }
 
         stage('Run OWASP Dependency Check') {
-            steps {
-                dependencyCheck additionalArguments: '',
-                                odcInstallation: 'DependencyCheck', // Make sure this matches your Jenkins tool config
-                                stopBuild: false
+           steps {
+                dependencyCheck additionalArguments: '', 
+                                odcInstallation: 'Default', // Optional if you set up multiple installations
+                                scanPath: '.',
+                                useStdin: false
             }
         }
 
